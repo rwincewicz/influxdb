@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"amqp"
 	"github.com/influxdb/influxdb/cluster"
 	"github.com/influxdb/influxdb/meta"
 	"github.com/influxdb/influxdb/services/admin"
@@ -195,6 +196,16 @@ func (s *Server) appendCollectdService(c collectd.Config) {
 		return
 	}
 	srv := collectd.NewService(c)
+	srv.MetaStore = s.MetaStore
+	srv.PointsWriter = s.PointsWriter
+	s.Services = append(s.Services, srv)
+}
+
+func (s *Server) appendAMQPService(c amqp.Config) {
+	if !c.Enabled {
+		return
+	}
+	srv := amqp.NewService(c)
 	srv.MetaStore = s.MetaStore
 	srv.PointsWriter = s.PointsWriter
 	s.Services = append(s.Services, srv)
